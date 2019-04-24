@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 
 
@@ -9,7 +11,8 @@ def constraint_checker(value_array, row, col, value_to_be_inserted):
     return False
 
 
-def constraint_checker_after_removal(value_array_copy, row, col, value_to_be_inserted):
+def constraint_checker_after_removal(value_array, row, col, value_to_be_inserted):
+    value_array_copy = copy.deepcopy(value_array)
     remove_val_from_row(value_array_copy, row, value_to_be_inserted)
     remove_val_from_col(value_array_copy, col, value_to_be_inserted)
     list_row = value_array_copy[row]
@@ -66,28 +69,38 @@ class Board:
         for row in self.forward_board:
             if not all(elem in row for elem in [x for x in range(self.size)]):
                 return False
+
         return True
 
-    def run_algorithm(self):
-        for row in range(len(self.board)):
-            for col in range(len(self.board)):
-                for value_to_be_inserted in self.forward_board[row][col]:
-                    if constraint_checker(self.forward_board, row, col, value_to_be_inserted):
-                        remove_val_from_row(self.forward_board, row, value_to_be_inserted)
-                        remove_val_from_col(self.forward_board, col, value_to_be_inserted)
-                        self.board[row, col] = value_to_be_inserted
-                        print("Row: ", row, "Col: ", col, "Value: ", value_to_be_inserted)
-                        self.print_forward_board()
-                        if self.check_grid():
-                            return board.board
-                        break
+    def run_algorithm(self, board, forward_board, row, col):
+        # Check if we are still in bounds
+        if col >= len(board):
+            if row + 1 >= len(board):
+                print(board)
+                return False
+            else:
+                row += 1
+                col = 0
 
-        print(self.board)
+        for value_to_be_inserted in forward_board[row][col]:
+            print(value_to_be_inserted)
+            if constraint_checker(forward_board, row, col, value_to_be_inserted):
+                board_copy = board[:]
+                forward_board_copy = copy.deepcopy(forward_board)
+                remove_val_from_row(forward_board_copy, row, value_to_be_inserted)
+                remove_val_from_col(forward_board_copy, col, value_to_be_inserted)
+                board_copy[row, col] = value_to_be_inserted
+                if self.check_grid():
+                    return board
+                self.run_algorithm(board_copy, forward_board_copy, row, col+1)
+
+        print(board)
 
 
-board = Board(3)
+board = Board(4)
+# print(len(board.board))
 # print(board.check_grid())
-# board.run_algorithm()
+board.run_algorithm(board.board, board.forward_board, 0, 0)
 # remove_val_from_col(board.forward_board, 1, 2)
 # remove_val_from_row(board.forward_board, 0, 2)
 # board.print_forward_board()
