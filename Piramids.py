@@ -1,4 +1,5 @@
 import copy
+import random
 
 import numpy as np
 
@@ -75,12 +76,38 @@ class Board:
         self.size = size
         self.board = np.zeros((size, size), dtype=int)
         self.board[:] = -1
-        self.forward_board = create_tab_of_tabs(size+1)
-        self.columns = [-1, 4, -1, 2]
-        self.rows = [-1, 4, -1, -1]
+        self.forward_board = create_tab_of_tabs(size + 1)
+
+        # Constraints
+        self.assign_constraints()
 
     def create_constraint__(self):
-        pass
+        constraint_list = [-1 for _ in range(1, self.size + 1)]
+        index_set = set()
+        for val in range(0, int(self.size / 2)):
+            index = random.randint(0, self.size - 1)
+            while index in index_set:
+                index = random.randint(0, self.size - 1)
+            index_set.add(index)
+            value = random.randint(1, self.size)
+            constraint_list[index] = value
+
+        return constraint_list
+
+    def assign_constraints(self):
+        self.top = self.create_constraint__()
+        self.left = self.create_constraint__()
+        self.bottom = self.create_constraint__()
+        self.right = self.create_constraint__()
+
+        self.print_constraints()
+
+    def print_constraints(self):
+        print(f"Top constraints: {self.top}")
+        print(f"Left constraints: {self.left}")
+        print(f"Bottom constraints: {self.bottom}")
+        print(f"Right constraints: {self.right}")
+        print("=======================")
 
     def print_forward_board(self):
         for row in self.forward_board:
@@ -92,20 +119,34 @@ class Board:
         for row in range(self.size):
             if any_duplicate(self.board[row]):
                 return False
-            if self.rows[row] != -1:
-                if max_possible(self.board[row]) < self.rows[row]:
+            if self.left[row] != -1:
+                if max_possible(self.board[row]) < self.left[row]:
                     return False
-                if piramid_checker(self.board[row]) > self.rows[row]:
+                if piramid_checker(self.board[row]) > self.left[row]:
                     return False
 
         for col in range(self.size):
             if any_duplicate(self.board[:, col]):
                 return False
-            if self.columns[col] != -1:
-                if max_possible(self.board[:, col]) < self.columns[col]:
+            if self.top[col] != -1:
+                if max_possible(self.board[:, col]) < self.top[col]:
                     return False
-                if piramid_checker(self.board[:, col]) > self.columns[col]:
+                if piramid_checker(self.board[:, col]) > self.top[col]:
                     return False
+
+        # for row in range(self.size):
+        #     if self.right[row] != -1:
+        #         if max_possible(self.board[row]) < self.right[row]:
+        #             return False
+        #         if piramid_checker(self.board[row]) > self.right[row]:
+        #             return False
+        #
+        # for col in range(self.size):
+        #     if self.bottom[col] != -1:
+        #         if max_possible(self.board[:, col]) < self.bottom[col]:
+        #             return False
+        #         if piramid_checker(self.board[:, col]) > self.bottom[col]:
+        #             return False
 
         return True
 
@@ -131,7 +172,11 @@ class Board:
 
 
 board = Board(4)
+# board.create_constraint__()
 result = board.run_algorithm(board.forward_board, 0, 0)
+while result is None:
+    result = board.run_algorithm(board.forward_board, 0, 0)
+    board.assign_constraints()
 print(result)
 
 # print(board.forward_board)
