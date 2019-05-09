@@ -1,3 +1,5 @@
+import time
+import matplotlib.pyplot as plt
 import copy
 
 import numpy as np
@@ -38,6 +40,7 @@ def remove_val_from_col(tab, col_number, value):
 
 class Board:
     def __init__(self, size):
+        self.size = size
         self.board = np.zeros((size, size), dtype=int)
         self.board[:] = -1
         self.forward_board = create_tab_of_tabs(size)
@@ -60,9 +63,10 @@ class Board:
         return True
 
     def run_algorithm(self, forward_board, row, col):
+        self.print_forward_board(forward_board)
         if self.constraint_checker():
-            if col >= len(self.board):
-                if row + 1 >= len(self.board):
+            if col >= self.size:
+                if row + 1 >= self.size:
                     return self.board
                 else:
                     row += 1
@@ -74,14 +78,27 @@ class Board:
                 remove_val_from_row(forward_board_copy, row, val)
                 remove_val_from_col(forward_board_copy, col, val)
                 board = self.run_algorithm(forward_board_copy, row, col + 1)
-                self.print_forward_board(forward_board)
                 if board is not None:
                     return board
                 else:
                     self.board[row, col] = -1
 
 
-board = Board(3)
+board = Board(5)
 result = board.run_algorithm(board.forward_board, 0, 0)
 print(result)
-
+# times = []
+# for x in range(11, 14):
+#     board = Board(x)
+#     start = time.time()
+#     result = board.run_algorithm(board.forward_board, 0, 0)
+#     end = time.time()
+#     times.append(end-start)
+#
+# y_pos = [x for x in range(11, 14)]
+#
+# plt.bar(y_pos, times)
+# plt.xlabel('Board Size')
+# plt.ylabel('Time in seconds')
+# plt.title('Latin square backtracking only')
+# plt.show()

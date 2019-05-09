@@ -1,5 +1,6 @@
 import copy
 import random
+import time
 
 import numpy as np
 
@@ -71,6 +72,20 @@ def max_possible(inserted):
     return piramid_checker(inserted) + count
 
 
+def max_possible_reversed(inserted):
+    count = piramid_checker(inserted)
+    if count is 0:
+        return 4
+
+    for val in available_values(inserted):
+        if val > max(inserted):
+            count = 1
+        else:
+            count += 1
+
+    return count
+
+
 class Board:
     def __init__(self, size):
         self.size = size
@@ -80,11 +95,13 @@ class Board:
 
         # Constraints
         self.assign_constraints()
+        # self.top = [-1, 4, -1, 4]
+        # self.left = [-1, 4, -1, -1]
 
     def create_constraint__(self):
         constraint_list = [-1 for _ in range(1, self.size + 1)]
         index_set = set()
-        for val in range(0, int(self.size / 2)):
+        for val in range(1):
             index = random.randint(0, self.size - 1)
             while index in index_set:
                 index = random.randint(0, self.size - 1)
@@ -134,19 +151,19 @@ class Board:
                 if piramid_checker(self.board[:, col]) > self.top[col]:
                     return False
 
-        # for row in range(self.size):
-        #     if self.right[row] != -1:
-        #         if max_possible(self.board[row]) < self.right[row]:
-        #             return False
-        #         if piramid_checker(self.board[row]) > self.right[row]:
-        #             return False
-        #
-        # for col in range(self.size):
-        #     if self.bottom[col] != -1:
-        #         if max_possible(self.board[:, col]) < self.bottom[col]:
-        #             return False
-        #         if piramid_checker(self.board[:, col]) > self.bottom[col]:
-        #             return False
+        for row in range(self.size):
+            if self.right[row] != -1:
+                if max_possible_reversed(self.board[row][::-1]) < self.right[row]:
+                    return False
+                if piramid_checker(self.board[row][::-1]) > self.right[row]:
+                    return False
+
+        for col in range(self.size):
+            if self.bottom[col] != -1:
+                if max_possible_reversed(self.board[:, col][::-1]) < self.bottom[col]:
+                    return False
+                if piramid_checker(self.board[:, col][::-1]) > self.bottom[col]:
+                    return False
 
         return True
 
@@ -171,15 +188,29 @@ class Board:
                     self.board[row, col] = -1
 
 
-board = Board(4)
+board = Board(3)
+# print()
 # board.create_constraint__()
 result = board.run_algorithm(board.forward_board, 0, 0)
+times = 0
 while result is None:
-    result = board.run_algorithm(board.forward_board, 0, 0)
     board.assign_constraints()
+    start = time.time()
+    result = board.run_algorithm(board.forward_board, 0, 0)
+    end = time.time()
+    times = end - start
 print(result)
+print(times)
+
+
+
+
+
+
+
 
 # print(board.forward_board)
-# print(max_possible([1, -1, -1, -1]))
-# print(available_values([0, 0, 1, 2]))
-# print(piramid_checker([2, 3, 1, 4]))
+# print(max_possible([-1, -1, -1, -1]))
+# print(max_possible_reversed([-1, -1, -1, -1]))
+# print(available_values([-1, -1, 4, 2]))
+# print(piramid_checker([-1, -1, -1, -1]))
