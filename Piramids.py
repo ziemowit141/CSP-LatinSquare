@@ -189,8 +189,6 @@ class Board:
 
 
 board = Board(3)
-# print()
-# board.create_constraint__()
 result = board.run_algorithm(board.forward_board, 0, 0)
 times = 0
 while result is None:
@@ -202,15 +200,3 @@ while result is None:
 print(result)
 print(times)
 
-
-
-
-
-
-
-
-# print(board.forward_board)
-# print(max_possible([-1, -1, -1, -1]))
-# print(max_possible_reversed([-1, -1, -1, -1]))
-# print(available_values([-1, -1, 4, 2]))
-# print(piramid_checker([-1, -1, -1, -1]))
